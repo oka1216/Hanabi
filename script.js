@@ -23,7 +23,7 @@ volumeSlider.addEventListener("input", () => {
   masterVolume = Number(volumeSlider.value) / 100;
   volumeValue.textContent = volumeSlider.value + "%";
   activeSounds.forEach(item => {
-    item.gain.gain.value = isMuted ? 0 : masterVolume;
+    item.volume = isMuted ? 0 : masterVolume;
   });
 });
   
@@ -33,7 +33,7 @@ muteButton.addEventListener("click", () => {
   muteButton.textContent = isMuted ? "🔇" : "🔊";
 
   activeSounds.forEach(item => {
-  item.gain.gain.value = isMuted ? 0 : masterVolume;
+  item.volume = isMuted ? 0 : masterVolume;
 });
 const colors = [
   "#ff4545",
@@ -335,27 +335,16 @@ function launchFirework(x, y) {
     size
   });
 
-   const sound = new Audio("hanabi-sound.wav");
+  const sound = new Audio("hanabi-sound.wav");
+sound.volume = isMuted ? 0 : masterVolume;
 
-const source = audioContext.createMediaElementSource(sound);
-const gain = audioContext.createGain();
-
-gain.gain.value = isMuted ? 0 : masterVolume;
-
-source.connect(gain);
-gain.connect(audioContext.destination);
-
-const soundItem = { sound, gain };
-activeSounds.push(soundItem);
+activeSounds.push(sound);
 
 sound.addEventListener("ended", () => {
-  activeSounds = activeSounds.filter(
-    item => item !== soundItem
-  );
+  activeSounds = activeSounds.filter(item => item !== sound);
 });
 
 sound.play().catch(() => {});
-}
 
 // 爆発させる
 function explode(rocket) {
