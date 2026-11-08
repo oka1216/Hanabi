@@ -23,7 +23,7 @@ volumeSlider.addEventListener("input", () => {
   masterVolume = Number(volumeSlider.value) / 100;
   volumeValue.textContent = volumeSlider.value + "%";
   activeSounds.forEach(item => {
-    item.gain.gain.value = isMuted ? 0 : masterVolume;
+    item.volume = isMuted ? 0 : masterVolume;
   });
 });
   
@@ -33,7 +33,7 @@ muteButton.addEventListener("click", () => {
   muteButton.textContent = isMuted ? "🔇" : "🔊";
 
   activeSounds.forEach(item => {
-  item.gain.gain.value = isMuted ? 0 : masterVolume;
+  item.volume = isMuted ? 0 : masterVolume;
 });
   });
 const colors = [
