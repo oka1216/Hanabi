@@ -22,19 +22,18 @@ const muteButton = document.getElementById("muteButton");
 volumeSlider.addEventListener("input", () => {
   masterVolume = Number(volumeSlider.value) / 100;
   volumeValue.textContent = volumeSlider.value + "%";
-
-  activeSounds.forEach(sound => {
-    sound.volume = isMuted ? 0 : masterVolume;
+  activeSounds.forEach(item => {
+    item.gain.gain.value = isMuted ? 0 : masterVolume;
   });
 });
+  
 
 muteButton.addEventListener("click", () => {
   isMuted = !isMuted;
   muteButton.textContent = isMuted ? "🔇" : "🔊";
 
-  activeSounds.forEach(sound => {
-    sound.volume = isMuted ? 0 : masterVolume;
-  });
+  activeSounds.forEach(item => {
+  item.gain.gain.value = isMuted ? 0 : masterVolume;
 });
 const colors = [
   "#ff4545",
@@ -336,13 +335,23 @@ function launchFirework(x, y) {
     size
   });
 
-    const sound = new Audio("hanabi-sound.wav");
-sound.volume = isMuted ? 0 : masterVolume;
+   const sound = new Audio("hanabi-sound.wav");
 
-activeSounds.push(sound);
+const source = audioContext.createMediaElementSource(sound);
+const gain = audioContext.createGain();
+
+gain.gain.value = isMuted ? 0 : masterVolume;
+
+source.connect(gain);
+gain.connect(audioContext.destination);
+
+const soundItem = { sound, gain };
+activeSounds.push(soundItem);
 
 sound.addEventListener("ended", () => {
-  activeSounds = activeSounds.filter(item => item !== sound);
+  activeSounds = activeSounds.filter(
+    item => item !== soundItem
+  );
 });
 
 sound.play().catch(() => {});
