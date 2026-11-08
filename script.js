@@ -114,37 +114,8 @@ function setupAudio() {
 }
 
 // 打ち上げ音
+// 打ち上げ音：2秒間の滑らかな風切り音
 function playLaunchSound() {
-  if (!audioContext) return;
-
-  const now = audioContext.currentTime;
-
-  const oscillator = audioContext.createOscillator();
-  const gain = audioContext.createGain();
-
-  oscillator.type = "sawtooth";
-
-  oscillator.frequency.setValueAtTime(450, now);
-  oscillator.frequency.exponentialRampToValueAtTime(
-    100,
-    now + 0.4
-  );
-
-  gain.gain.setValueAtTime(0.045, now);
-  gain.gain.exponentialRampToValueAtTime(
-    0.001,
-    now + 0.4
-  );
-
-  oscillator.connect(gain);
-  gain.connect(audioContext.destination);
-
-  oscillator.start(now);
-  oscillator.stop(now + 0.4);
-}
-
-// 爆発音
-function playExplosionSound() {
   if (!audioContext || !noiseBuffer) return;
 
   const now = audioContext.currentTime;
@@ -154,18 +125,28 @@ function playExplosionSound() {
   const gain = audioContext.createGain();
 
   source.buffer = noiseBuffer;
+  source.loop = true;
 
   filter.type = "lowpass";
-  filter.frequency.setValueAtTime(1800, now);
+  filter.frequency.setValueAtTime(350, now);
   filter.frequency.exponentialRampToValueAtTime(
-    300,
-    now + 0.5
+    1400,
+    now + 1.2
+  );
+  filter.frequency.exponentialRampToValueAtTime(
+    700,
+    now + 2
   );
 
-  gain.gain.setValueAtTime(0.19, now);
+  gain.gain.setValueAtTime(0.001, now);
+  gain.gain.linearRampToValueAtTime(
+    0.13,
+    now + 0.3
+  );
+  gain.gain.setValueAtTime(0.13, now + 1.5);
   gain.gain.exponentialRampToValueAtTime(
     0.001,
-    now + 0.65
+    now + 2
   );
 
   source.connect(filter);
@@ -173,33 +154,74 @@ function playExplosionSound() {
   gain.connect(audioContext.destination);
 
   source.start(now);
-  source.stop(now + 0.65);
+  source.stop(now + 2);
+}
 
-  // 低いドーン音
+// 爆発音：重厚な花火のドーン！
+function playExplosionSound() {
+  if (!audioContext || !noiseBuffer) return;
+
+  const now = audioContext.currentTime;
+
+  // 空気が震えるような低音
   const boom = audioContext.createOscillator();
   const boomGain = audioContext.createGain();
 
   boom.type = "sine";
 
-  boom.frequency.setValueAtTime(100, now);
+  boom.frequency.setValueAtTime(85, now);
   boom.frequency.exponentialRampToValueAtTime(
     35,
-    now + 0.35
+    now + 0.9
   );
 
-  boomGain.gain.setValueAtTime(0.25, now);
+  boomGain.gain.setValueAtTime(0.001, now);
+  boomGain.gain.linearRampToValueAtTime(
+    0.32,
+    now + 0.08
+  );
   boomGain.gain.exponentialRampToValueAtTime(
     0.001,
-    now + 0.4
+    now + 1.1
   );
 
   boom.connect(boomGain);
   boomGain.connect(audioContext.destination);
 
   boom.start(now);
-  boom.stop(now + 0.4);
-}
+  boom.stop(now + 1.1);
 
+  // 花火が空気を震わせる音
+  const source = audioContext.createBufferSource();
+  const filter = audioContext.createBiquadFilter();
+  const noiseGain = audioContext.createGain();
+
+  source.buffer = noiseBuffer;
+
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(700, now);
+  filter.frequency.exponentialRampToValueAtTime(
+    180,
+    now + 0.8
+  );
+
+  noiseGain.gain.setValueAtTime(0.001, now);
+  noiseGain.gain.linearRampToValueAtTime(
+    0.16,
+    now + 0.06
+  );
+  noiseGain.gain.exponentialRampToValueAtTime(
+    0.001,
+    now + 0.85
+  );
+
+  source.connect(filter);
+  filter.connect(noiseGain);
+  noiseGain.connect(audioContext.destination);
+
+  source.start(now);
+  source.stop(now + 0.9);
+}
 // 花火の形を決める
 function createShape(type) {
   const points = [];
@@ -283,7 +305,7 @@ function launchFirework(x, y) {
     targetX: x,
     targetY: y,
     progress: 0,
-    speed: 0.035 + Math.random() * 0.012,
+    speed: 0.008 + Math.random() * 0.002,
     color,
     type,
     size
