@@ -305,18 +305,21 @@ function launchFirework(x, y) {
     targetX: x,
     targetY: y,
     progress: 0,
-    speed: 0.008 + Math.random() * 0.002,
+    startTime: performance.now(),
+    duration: 1400,
     color,
     type,
     size
   });
 
-  playLaunchSound();
+    const sound = new Audio("hanabi-sound.wav");
+  sound.volume = 1;
+  sound.play().catch(() => {});
 }
 
 // 爆発させる
 function explode(rocket) {
-  playExplosionSound();
+  
 
   const shape = createShape(rocket.type);
 
@@ -424,7 +427,10 @@ function animate(time) {
   drawStars(time);
 
   rockets.forEach(rocket => {
-    rocket.progress += rocket.speed;
+      rocket.progress = Math.min(
+      (time - rocket.startTime) / rocket.duration,
+      1
+    );
 
     const t = Math.min(rocket.progress, 1);
 
