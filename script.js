@@ -11,7 +11,31 @@ let stars = [];
 
 let audioContext = null;
 let noiseBuffer = null;
+let masterVolume = 0.7;
+let isMuted = false;
+let activeSounds = [];
+// 音量コントロール
+const volumeSlider = document.getElementById("volumeSlider");
+const volumeValue = document.getElementById("volumeValue");
+const muteButton = document.getElementById("muteButton");
 
+volumeSlider.addEventListener("input", () => {
+  masterVolume = Number(volumeSlider.value) / 100;
+  volumeValue.textContent = volumeSlider.value + "%";
+
+  activeSounds.forEach(sound => {
+    sound.volume = isMuted ? 0 : masterVolume;
+  });
+});
+
+muteButton.addEventListener("click", () => {
+  isMuted = !isMuted;
+  muteButton.textContent = isMuted ? "🔇" : "🔊";
+
+  activeSounds.forEach(sound => {
+    sound.volume = isMuted ? 0 : masterVolume;
+  });
+});
 const colors = [
   "#ff4545",
   "#ffcf45",
@@ -313,8 +337,15 @@ function launchFirework(x, y) {
   });
 
     const sound = new Audio("hanabi-sound.wav");
-  sound.volume = 1;
-  sound.play().catch(() => {});
+sound.volume = isMuted ? 0 : masterVolume;
+
+activeSounds.push(sound);
+
+sound.addEventListener("ended", () => {
+  activeSounds = activeSounds.filter(item => item !== sound);
+});
+
+sound.play().catch(() => {});
 }
 
 // 爆発させる
