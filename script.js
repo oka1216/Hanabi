@@ -35,6 +35,7 @@ muteButton.addEventListener("click", () => {
   activeSounds.forEach(item => {
   item.gain.gain.value = isMuted ? 0 : masterVolume;
 });
+  });
 const colors = [
   "#ff4545",
   "#ffcf45",
@@ -345,7 +346,7 @@ sound.addEventListener("ended", () => {
 });
 
 sound.play().catch(() => {});
-
+}
 // 爆発させる
 function explode(rocket) {
   
